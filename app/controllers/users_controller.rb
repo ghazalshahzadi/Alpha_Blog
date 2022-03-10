@@ -1,5 +1,7 @@
  class UsersController < ApplicationController
-   def index
+  before_action :set_user, only: [:edit, :update, :show]
+  before_action :require_same_user, only:[:edit, :update]
+    def index
      @users = User.all
    end
     def new
@@ -15,10 +17,8 @@
       end
       end
     def edit
-    @user = User.find(params[:id])
     end
     def update
-    @user = User.find(params[:id])
       if @user.update(user_params)
        flash[:success] = "Your account was updated successfully"
          redirect_to articles_path
@@ -27,10 +27,19 @@
       end
       end
       def show
-         @user = User.find(params[:id])
+       
       end
    private
     def user_params
       params.require(:user).permit(:username, :password, :email)
    end
+   def det_user
+    @user = User.find(params[:id])
+   end
+   def require_same_user
+    if current_user != @user
+        flash[:danger]="you can only edit your own articles"
+        redirect_to root_path
+    end 
+end 
  end
